@@ -12,10 +12,14 @@ pub struct Bag {
     red_pulled: i32,
     green_pulled: i32,
     blue_pulled: i32,
+    max_red:i32,
+    max_green: i32,
+    max_blue: i32,
     pub ok: bool,
 }
 
 impl Bag {
+    /// resets the bag after each round of a game
     pub fn reset(&mut self) {
         self.red_pulled = 0;
         self.green_pulled = 0;
@@ -23,10 +27,22 @@ impl Bag {
         self.ok = true;
     }
 
+    /// resets the bag and clears max values for the start of a game
+    pub fn restart(&mut self) {
+        self.reset();
+        self.max_red = 0;
+        self.max_green = 0;
+        self.max_blue = 0;
+
+    }
+
     pub fn update(&mut self, pull: &BagPull) -> Result<(),&str> {
         match pull.color {
             Color::Red => {
                 self.red_pulled += pull.number;
+                if self.red_pulled > self.max_red {
+                    self.max_red = self.red_pulled;
+                }
                 if self.red_pulled > self.red_cubes {
                     self.ok = false;
                     return Err("too many red pulled")
@@ -34,6 +50,9 @@ impl Bag {
             },
             Color::Green => {
                 self.green_pulled += pull.number;
+                if self.green_pulled > self.max_green {
+                    self.max_green = self.green_pulled;
+                }
                 if self.green_pulled > self.green_cubes {
                     self.ok = false;
                     return Err("too many green pulled")
@@ -41,14 +60,20 @@ impl Bag {
             },
             Color::Blue => {
                 self.blue_pulled += pull.number;
+                if self.blue_pulled > self.max_blue {
+                    self.max_blue = self.blue_pulled;
+                }
                 if self.blue_pulled > self.blue_cubes {
                     self.ok = false;
                     return Err("too many blue pulled")
                 }
             }
         }
-
         Ok(())
+    }
+
+    pub fn power(&self) -> i32 {
+        self.max_red * self.max_green * self.max_blue
     }
 
     pub fn new(red: i32, green: i32, blue: i32) -> Bag {
@@ -59,6 +84,9 @@ impl Bag {
             red_pulled: 0,
             green_pulled: 0,
             blue_pulled: 0,
+            max_red: 0,
+            max_green: 0,
+            max_blue: 0,
             ok: true
         }
     }

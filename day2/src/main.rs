@@ -21,6 +21,7 @@ fn main() {
 
     let mut bag = Bag::new(12, 13, 14);
     let mut total = 0;
+    let mut total_power = 0;
 
     for (index, line) in s.lines().collect::<Vec<&str>>().into_iter().enumerate() {
         println!("{line}");
@@ -31,24 +32,28 @@ fn main() {
                 match bag.update(&pull) {
                     Ok(()) => continue,
                     Err(why) => {
-                        println!("round #{} bag pull failed, {}\n", round_idx + 1, why);
-                        break
+                        println!("round #{} bag pull failed, {}", round_idx + 1, why);
                     },
                 }
             }
 
-            match bag.ok {
-                true => bag.reset(),
-                false => break,
-            }
+            bag.reset();
         }
 
         if bag.ok {
-            println!("adding {} to {}\n", game.number, total);
+            println!("adding {} to {}", game.number, total);
             total += game.number;
+        } else {
+            println!("skipping")
         }
-        bag.reset();
+
+        println!("adding {} to power {}\n", bag.power(), total_power);
+        total_power += bag.power();
+
+        // restart bag for next game
+        bag.restart();
     }
 
     println!("{total}");
+    println!("power: {}", total_power);
 }
